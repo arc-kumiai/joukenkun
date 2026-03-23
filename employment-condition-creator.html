@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ジョウケンくん | 雇用条件書かんたん作成 | ARC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f8f6f1;
+    --accent: #c8452a;
+    --accent2: #2a7c8c;
+    --gold: #d4a843;
+    --muted: #8a8880;
+    --border: #d4d0c8;
+    --card: #ffffff;
+    --success: #2d6a4f;
+    --warning: #e07a1c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: #ffffff;
+    color: var(--ink);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid var(--accent);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .logo {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .logo span { color: var(--muted); font-weight: 400; }
+
+  .header-badge {
+    font-size: 0.7rem;
+    background: var(--accent);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    min-height: calc(100vh - 60px);
+  }
+
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+  }
+
+  /* LEFT PANEL - INPUT */
+  .left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .panel-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .panel-title .step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    background: var(--accent2);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* SECTION CARDS */
+  .section-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+    transition: box-shadow 0.2s;
+  }
+
+  .section-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+
+  .section-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  /* FORM ELEMENTS */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid.full { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+
+  .form-group label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  .required-mark { color: var(--accent); margin-left: 2px; }
+
+  input, select, textarea {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    background: var(--paper);
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(42,124,140,0.12);
+    background: white;
+  }
+
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* RADIO/CHECKBOX GROUPS */
+  .toggle-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .toggle-btn {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    background: var(--paper);
+    color: var(--ink);
+    transition: all 0.15s;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .toggle-btn:hover { border-color: var(--accent2); }
+  .toggle-btn.active { background: var(--accent2); color: white; border-color: var(--accent2); font-weight: 500; }
+
+  /* HINT BOX */
+  .hint-box {
+    background: #eef7f9;
+    border-left: 3px solid var(--accent2);
+    padding: 0.6rem 0.8rem;
+    font-size: 0.78rem;
+    color: var(--accent2);
+    border-radius: 0 4px 4px 0;
+    line-height: 1.5;
+    margin-top: 0.5rem;
+  }
+
+  .warn-box {
+    background: #fef8f0;
+    border-left: 3px solid var(--warning);
+    padding: 0.6rem 0.8rem;
+    font-size: 0.78rem;
+    color: #8a4a00;
+    border-radius: 0 4px 4px 0;
+    line-height: 1.5;
+    margin-top: 0.5rem;
+  }
+
+  /* SUBMIT */
+  .submit-btn {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 0.9rem 2rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .submit-btn:hover { background: #a33520; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(200,69,42,0.3); }
+  .submit-btn:disabled { background: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* RIGHT PANEL - OUTPUT */
+  .right-panel {
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .output-area {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow-y: auto;
+    padding: 1.5rem;
+    font-size: 0.875rem;
+    line-height: 1.8;
+  }
+
+  .placeholder-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--muted);
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  /* OUTPUT CONTENT STYLES */
+  .output-content h1 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ink);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .output-content h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent2);
+    margin: 1.5rem 0 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .output-content h2::before {
+    content: '';
+    width: 4px;
+    height: 1em;
+    background: var(--accent2);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .output-content h3 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 1rem 0 0.4rem;
+  }
+
+  .output-content p { margin-bottom: 0.5rem; }
+
+  .output-content ul {
+    padding-left: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .output-content li { margin-bottom: 0.3rem; }
+
+  .output-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0;
+    font-size: 0.82rem;
+  }
+
+  .output-content th {
+    background: var(--ink);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .output-content td {
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .output-content tr:nth-child(even) td { background: #f8f8f6; }
+
+  .alert-box {
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    margin: 0.75rem 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .alert-info { background: #eef7f9; border-left: 3px solid var(--accent2); color: #1a4a52; }
+  .alert-warn { background: #fef8f0; border-left: 3px solid var(--warning); color: #8a4a00; }
+  .alert-success { background: #edf7f2; border-left: 3px solid var(--success); color: #1a4a30; }
+  .alert-danger { background: #fdf0ee; border-left: 3px solid var(--accent); color: #6b1a10; }
+
+  /* LOADING */
+  .loading-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 1.5rem;
+    color: var(--muted);
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent2);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .loading-dots span {
+    width: 6px;
+    height: 6px;
+    background: var(--accent2);
+    border-radius: 50%;
+    animation: bounce 1.2s ease-in-out infinite;
+  }
+
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+
+  /* COPY BTN */
+  .copy-btn {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.78rem;
+    padding: 0.4rem 1rem;
+    background: var(--ink);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .copy-btn:hover { background: #2d2d4a; }
+
+  /* STREAMING CURSOR */
+  .stream-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--accent2);
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* SCROLLBAR */
+  .output-area::-webkit-scrollbar { width: 6px; }
+  .output-area::-webkit-scrollbar-track { background: var(--paper); }
+  .output-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .output-area::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* SECTION DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+    margin: 0.5rem 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" style="display:flex;align-items:center;gap:0.75rem;">
+<img src="data:image/png;base64,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" style="width:42px;height:42px;object-fit:contain;" alt="ジョウケンくん">
+    <div style="display:flex;flex-direction:column;gap:1px;">
+      <span style="font-family:'Noto Sans JP',sans-serif;font-size:1.05rem;font-weight:700;letter-spacing:0.08em;color:var(--ink);">ジョウケンくん</span>
+      <span style="font-size:0.65rem;font-weight:400;letter-spacing:0.06em;color:var(--muted);">雇用条件書かんたん作成 | ARC事業協同組合</span>
+    </div>
+  </div>
+  <div class="header-badge">AI POWERED</div>
+</header>
+
+<div class="container">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+
+    <!-- 企業基本情報 -->
+    <div class="section-card">
+      <div class="section-label">🏢 企業・業種情報</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>会社名 <span class="required-mark">*</span></label>
+          <input type="text" id="company_name" placeholder="株式会社〇〇建設">
+        </div>
+        <div class="form-group">
+          <label>業種 <span class="required-mark">*</span></label>
+          <select id="industry" onchange="onIndustryChange()">
+            <option value="">選択してください</option>
+            <option value="建設（土木）">建設（土木）</option>
+            <option value="建設（建築）">建設（建築）</option>
+            <option value="建設（内装・仕上）">建設（内装・仕上）</option>
+            <option value="建設（鉄筋・型枠）">建設（鉄筋・型枠）</option>
+            <option value="建設（塗装）">建設（塗装）</option>
+            <option value="建設（とび）">建設（とび）</option>
+            <option value="食品製造">食品製造</option>
+            <option value="農業">農業</option>
+            <option value="介護">介護</option>
+            <option value="機械・金属">機械・金属</option>
+            <option value="繊維・縫製">繊維・縫製</option>
+            <option value="その他製造業">その他製造業</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>就労都道府県 <span class="required-mark">*</span></label>
+          <select id="work_location" onchange="updateMinWage()">
+            <option value="">選択してください</option>
+            <option value="北海道">北海道</option>
+            <option value="青森県">青森県</option>
+            <option value="岩手県">岩手県</option>
+            <option value="宮城県">宮城県</option>
+            <option value="秋田県">秋田県</option>
+            <option value="山形県">山形県</option>
+            <option value="福島県">福島県</option>
+            <option value="茨城県">茨城県</option>
+            <option value="栃木県">栃木県</option>
+            <option value="群馬県">群馬県</option>
+            <option value="埼玉県">埼玉県</option>
+            <option value="千葉県">千葉県</option>
+            <option value="東京都">東京都</option>
+            <option value="神奈川県">神奈川県</option>
+            <option value="新潟県">新潟県</option>
+            <option value="富山県">富山県</option>
+            <option value="石川県">石川県</option>
+            <option value="福井県">福井県</option>
+            <option value="山梨県">山梨県</option>
+            <option value="長野県">長野県</option>
+            <option value="岐阜県">岐阜県</option>
+            <option value="静岡県">静岡県</option>
+            <option value="愛知県">愛知県</option>
+            <option value="三重県">三重県</option>
+            <option value="滋賀県">滋賀県</option>
+            <option value="京都府">京都府</option>
+            <option value="大阪府">大阪府</option>
+            <option value="兵庫県">兵庫県</option>
+            <option value="奈良県">奈良県</option>
+            <option value="和歌山県">和歌山県</option>
+            <option value="鳥取県">鳥取県</option>
+            <option value="島根県">島根県</option>
+            <option value="岡山県">岡山県</option>
+            <option value="広島県">広島県</option>
+            <option value="山口県">山口県</option>
+            <option value="徳島県">徳島県</option>
+            <option value="香川県">香川県</option>
+            <option value="愛媛県">愛媛県</option>
+            <option value="高知県">高知県</option>
+            <option value="福岡県">福岡県</option>
+            <option value="佐賀県">佐賀県</option>
+            <option value="長崎県">長崎県</option>
+            <option value="熊本県">熊本県</option>
+            <option value="大分県">大分県</option>
+            <option value="宮崎県">宮崎県</option>
+            <option value="鹿児島県">鹿児島県</option>
+            <option value="沖縄県">沖縄県</option>
+          </select>
+        </div>
+      </div>
+      <!-- 業種別警告エリア -->
+      <div id="industryAlertBox" style="display:none; margin-top:0.75rem;"></div>
+    </div>
+    <div class="section-card">
+      <div class="section-label">💴 賃金設計（月給制・最低賃金ベース）</div>
+
+      <!-- 最低賃金表示バナー -->
+      <div id="minWageBanner" style="display:none; background:linear-gradient(135deg,#1a1a2e,#2a3a5c); color:white; border-radius:6px; padding:0.85rem 1.1rem; margin-bottom:1rem;">
+        <div style="font-size:0.7rem; opacity:0.7; letter-spacing:0.08em; margin-bottom:0.25rem;">2025年度 地域別最低賃金</div>
+        <div style="display:flex; align-items:baseline; gap:0.5rem;">
+          <span id="minWageDisplay" style="font-family:'Space Mono',monospace; font-size:1.6rem; font-weight:700; color:#d4a843;"></span>
+          <span style="font-size:0.85rem; opacity:0.8;">円 / 時間</span>
+          <span id="minWagePrefDisplay" style="font-size:0.78rem; opacity:0.6; margin-left:0.5rem;"></span>
+        </div>
+        <div id="minWageMonthly" style="font-size:0.78rem; opacity:0.75; margin-top:0.4rem;"></div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>月給の設定方針 <span class="required-mark">*</span></label>
+          <select id="wage_policy" onchange="calcAll()">
+            <option value="最低賃金ちょうど">最低賃金ちょうど</option>
+            <option value="最低賃金＋少し上乗せ">最低賃金＋少し上乗せ</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>上乗せ額（月額）</label>
+          <div style="display:flex;align-items:center;gap:0.4rem;">
+            <input type="number" id="wage_extra" min="0" step="1000" value="0" style="width:100px;" oninput="calcAll()">
+            <span style="font-size:0.8rem;color:var(--muted);">円</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>通勤手当</label>
+          <select id="commute_allowance">
+            <option value="なし">なし</option>
+            <option value="実費支給">実費支給</option>
+            <option value="定額支給（上限あり）">定額支給（上限あり）</option>
+            <option value="全額支給">全額支給</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>その他手当</label>
+          <input type="text" id="other_allowance" placeholder="例：皆勤手当5,000円">
+        </div>
+      </div>
+      <div id="minWageCalcBox" style="display:none;" class="hint-box"></div>
+    </div>
+
+    <!-- 労働時間 -->
+    <div class="section-card">
+      <div class="section-label">⏰ 労働時間・休日</div>
+
+      <!-- 拘束・実働時間 -->
+      <p style="font-size:0.7rem;color:var(--muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.6rem;">勤務時間帯</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>拘束開始（出勤時刻）</label>
+          <input type="time" id="time_start" value="08:00" oninput="calcAll()">
+        </div>
+        <div class="form-group">
+          <label>拘束終了（退勤時刻）</label>
+          <input type="time" id="time_end" value="17:00" oninput="calcAll()">
+        </div>
+        <div class="form-group">
+          <label>実働時間（1日） <span class="required-mark">*</span></label>
+          <div style="display:flex;align-items:center;gap:0.4rem;">
+            <input type="number" id="work_hours_num" min="1" max="16" step="0.5" value="8" style="width:80px;" oninput="calcAll()">
+            <span style="font-size:0.8rem;color:var(--muted);">時間</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>休憩時間（自動計算）</label>
+          <div id="rest_time_display" style="
+            padding:0.5rem 0.75rem;
+            background:#f0f0ee;
+            border:1px solid var(--border);
+            border-radius:4px;
+            font-size:0.875rem;
+            color:var(--muted);
+            min-height:2.2rem;
+            display:flex;
+            align-items:center;
+          ">—</div>
+        </div>
+      </div>
+
+      <!-- 休日 -->
+      <div class="divider" style="margin:0.75rem 0;"></div>
+      <p style="font-size:0.7rem;color:var(--muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.6rem;">休日・特別休暇</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>休日形態 <span class="required-mark">*</span></label>
+          <select id="holiday_type" onchange="toggleHolidayExtras(); calcAll();">
+            <option value="">選択</option>
+            <option value="週休2日（土日）">完全週休2日（土日）104日</option>
+            <option value="週休2日（隔週土曜）">隔週土曜休み 78日</option>
+            <option value="日曜＋祝日">日曜＋祝日 67日</option>
+            <option value="日曜日のみ">日曜日のみ 52日</option>
+            <option value="4週4休">4週4休 52日</option>
+            <option value="現場カレンダー">現場カレンダー（日数入力）</option>
+          </select>
+        </div>
+        <div class="form-group" id="custom_holiday_days_wrap" style="display:none;">
+          <label>現場カレンダー 年間休日日数</label>
+          <div style="display:flex;align-items:center;gap:0.4rem;">
+            <input type="number" id="custom_holiday_days" min="0" max="200" value="70" style="width:80px;" oninput="calcAll()">
+            <span style="font-size:0.8rem;color:var(--muted);">日</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 特別休暇 -->
+      <div style="margin-top:0.6rem;">
+        <p style="font-size:0.72rem;color:var(--accent2);font-weight:700;letter-spacing:0.04em;margin-bottom:0.5rem;">特別休暇（休日形態に加算）</p>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>GW休暇</label>
+            <div style="display:flex;align-items:center;gap:0.4rem;">
+              <input type="number" id="holiday_gw" min="0" max="15" value="0" style="width:65px;" oninput="calcAll()">
+              <span style="font-size:0.8rem;color:var(--muted);">日</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>夏季休暇</label>
+            <div style="display:flex;align-items:center;gap:0.4rem;">
+              <input type="number" id="holiday_summer" min="0" max="15" value="0" style="width:65px;" oninput="calcAll()">
+              <span style="font-size:0.8rem;color:var(--muted);">日</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>年末年始休暇</label>
+            <div style="display:flex;align-items:center;gap:0.4rem;">
+              <input type="number" id="holiday_newyear" min="0" max="15" value="0" style="width:65px;" oninput="calcAll()">
+              <span style="font-size:0.8rem;color:var(--muted);">日</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 自動計算結果パネル -->
+      <div id="calcResultPanel" style="display:none; margin-top:1rem; background:linear-gradient(135deg,#1a1a2e,#1a3a3c); border-radius:6px; padding:1rem 1.2rem; color:white;">
+        <div style="font-size:0.7rem;opacity:0.6;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem;">⚡ 自動計算結果</div>
+        <div id="calcResultContent" style="font-size:0.82rem;line-height:2;"></div>
+      </div>
+
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label>繁忙期・閑散期の特徴</label>
+        <input type="text" id="busy_season" placeholder="例：12月〜3月が繁忙、8月お盆休みあり">
+      </div>
+    </div>
+
+    <!-- 時間外・36協定 -->
+    <div class="section-card">
+      <div class="section-label">📋 時間外労働・36協定</div>
+      <div class="form-group">
+        <label>月平均残業時間（実態）</label>
+        <div class="toggle-group" id="overtime_toggle">
+          <button class="toggle-btn" data-val="ほぼなし（〜5h）">ほぼなし（〜5h）</button>
+          <button class="toggle-btn" data-val="少ない（5〜20h）">少ない（5〜20h）</button>
+          <button class="toggle-btn" data-val="中程度（20〜40h）">中程度（20〜40h）</button>
+          <button class="toggle-btn" data-val="多い（40〜60h）">多い（40〜60h）</button>
+          <button class="toggle-btn" data-val="繁忙期は60h超">繁忙期は60h超</button>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:0.75rem;">
+        <label>36協定の締結状況</label>
+        <div class="toggle-group" id="agreement36_toggle">
+          <button class="toggle-btn" data-val="未締結">未締結</button>
+          <button class="toggle-btn" data-val="締結済（一般条項のみ）">締結済（一般条項）</button>
+          <button class="toggle-btn" data-val="締結済（特別条項あり）">締結済（特別条項あり）</button>
+          <button class="toggle-btn" data-val="不明">不明</button>
+        </div>
+      </div>
+      <div class="warn-box" id="overtime_warn" style="display:none;">
+        ⚠️ 月45時間超の時間外労働には36協定の特別条項が必須です。未締結の場合、技能実習生に残業をさせることができません。
+      </div>
+    </div>
+
+    <!-- 変形労働 -->
+    <div class="section-card">
+      <div class="section-label">🗓️ 変形労働時間制の検討</div>
+      <div class="form-group">
+        <label>変形労働時間制の採用状況・希望</label>
+        <div class="toggle-group" id="flex_toggle">
+          <button class="toggle-btn" data-val="採用していない">採用していない</button>
+          <button class="toggle-btn" data-val="1ヶ月変形">1ヶ月変形（採用or検討）</button>
+          <button class="toggle-btn" data-val="1年変形">1年変形（採用or検討）</button>
+          <button class="toggle-btn" data-val="不明・相談したい">不明・相談したい</button>
+        </div>
+      </div>
+      <div class="hint-box">
+        月給制では「月の所定労働時間」が基本給の単価算出に直結します。変形労働時間制を導入すると、繁閑に応じた労働時間配分が可能になり、割増賃金コストを適法に管理できます。
+      </div>
+    </div>
+
+    <!-- 控除・宿舎 -->
+    <div class="section-card">
+      <div class="section-label">🏠 宿舎・控除の設定</div>
+
+      <!-- 宿舎 -->
+      <div class="form-group" style="margin-bottom:0.85rem;">
+        <label>宿舎の提供</label>
+        <div class="toggle-group" id="dormitory_toggle">
+          <button class="toggle-btn active" data-val="なし">提供なし</button>
+          <button class="toggle-btn" data-val="あり（無償）">無償提供</button>
+          <button class="toggle-btn" data-val="あり（有償）">有償（控除あり）</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <p style="font-size:0.75rem;font-weight:700;color:var(--ink);margin:0.75rem 0 0.6rem;letter-spacing:0.03em;">控除項目（月額）</p>
+
+      <!-- 法定控除 -->
+      <p style="font-size:0.7rem;color:var(--muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.5rem;">① 法定控除（月給から自動計算）</p>
+      <div id="legal_deduct_auto" class="hint-box" style="margin-bottom:0.75rem; line-height:1.9;">
+        都道府県と休日形態を選択すると、月給試算額をもとに自動計算されます。
+      </div>
+      <div class="form-grid three" style="margin-bottom:0.75rem; opacity:0.7;">
+        <div class="form-group">
+          <label>健康保険料（本人負担・試算）</label>
+          <input type="text" id="deduct_health" readonly placeholder="自動計算" style="background:#f0f0ee;cursor:default;">
+        </div>
+        <div class="form-group">
+          <label>厚生年金保険料（本人負担・試算）</label>
+          <input type="text" id="deduct_pension" readonly placeholder="自動計算" style="background:#f0f0ee;cursor:default;">
+        </div>
+        <div class="form-group">
+          <label>雇用保険料（本人負担・試算）</label>
+          <input type="text" id="deduct_employ" readonly placeholder="自動計算" style="background:#f0f0ee;cursor:default;">
+        </div>
+      </div>
+
+      <!-- 生活費控除（労使協定必要） -->
+      <p style="font-size:0.7rem;color:var(--muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.5rem;">② 生活費控除（労使協定必要・賃金天引き）</p>
+      <div class="form-grid" style="margin-bottom:0.5rem;">
+        <div class="form-group">
+          <label>家賃（宿舎費）
+            <span style="font-size:0.68rem;color:var(--muted);font-weight:400;">現物給与評価額の範囲内</span>
+          </label>
+          <input type="text" id="deduct_rent" placeholder="例：20,000円" oninput="calcDeductionCheck()">
+        </div>
+        <div class="form-group">
+          <label>水道・光熱費
+            <span style="font-size:0.68rem;color:var(--muted);font-weight:400;">実費按分が必要</span>
+          </label>
+          <input type="text" id="deduct_utility" placeholder="例：5,000円" oninput="calcDeductionCheck()">
+        </div>
+        <div class="form-group">
+          <label>食費
+            <span style="font-size:0.68rem;color:var(--muted);font-weight:400;">実費相当額のみ</span>
+          </label>
+          <input type="text" id="deduct_food" placeholder="例：15,000円" oninput="calcDeductionCheck()">
+        </div>
+        <div class="form-group">
+          <label>通信費（Wi-Fi等）
+            <span style="font-size:0.68rem;color:var(--muted);font-weight:400;">労使協定必要・最低賃金比較に影響</span>
+          </label>
+          <input type="text" id="deduct_wifi" placeholder="例：3,000円" oninput="calcDeductionCheck()">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0.5rem;">
+        <label>その他控除
+          <span style="font-size:0.68rem;color:var(--muted);font-weight:400;">内容・金額を記載（労使協定必要）</span>
+        </label>
+        <input type="text" id="deduct_other" placeholder="例：作業着クリーニング代2,000円" oninput="calcDeductionCheck()">
+      </div>
+
+      <!-- 控除合計・手取りチェック -->
+      <div id="deductionCheckBox" style="display:none;" class="section-card" style="margin-top:0.5rem; border:1.5px solid var(--border);">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:0.5rem;">💰 手取りシミュレーション</div>
+        <div id="deductionCalcResult" style="font-size:0.82rem;line-height:1.8;"></div>
+      </div>
+      <div class="warn-box" style="margin-top:0.5rem;">
+        ⚠️ 家賃・光熱費・食費は <strong>最低賃金の比較計算には影響しません</strong>（賃金全額払い後に生活費として徴収する形も可）。ただし通信費など <strong>業務と無関係な控除は最低賃金比較の対象</strong> になります。また控除後の実質手取りが著しく低い場合、OTIT審査で問題になります。
+      </div>
+    </div>
+
+    <!-- 特記事項 -->
+    <div class="section-card">
+      <div class="section-label">📝 その他・懸念点</div>
+      <div class="form-group">
+        <textarea id="notes" rows="3" placeholder="例：現在日給13,000円を月給換算したい。36協定未締結で繁忙期の残業が多い。会社カレンダーの作り方も教えてほしい。"></textarea>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="generateConditions()">
+      <span>📋</span> ジョウケンくんに作ってもらう！
+    </button>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="output-header">
+      <div class="panel-title" style="border:none;padding:0;margin:0;">
+        <div class="step-num" style="background:var(--accent);">AI</div>
+        ジョウケンくんの提案・解説
+      </div>
+      <button class="copy-btn" id="copyBtn" style="display:none;" onclick="copyOutput()">
+        📋 コピー
+      </button>
+    </div>
+    <div class="output-area" id="outputArea">
+      <div class="placeholder-state">
+<img src="data:image/png;base64,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" style="width:110px;height:110px;object-fit:contain;margin-bottom:0.5rem;" alt="ジョウケンくん">
+        <div>
+          <p style="font-weight:700; font-size:1rem; margin-bottom:0.4rem;">やあ！ジョウケンくんだよ👋</p>
+          <p style="font-size:0.85rem; color:var(--muted);">左側に情報を入力して<br>ボタンを押してね！</p>
+          <p style="font-size:0.78rem; color:var(--muted); margin-top:0.85rem; line-height:1.8;">
+            ✓ 月給を自動計算するよ<br>
+            ✓ 36協定・変形労働もアドバイス<br>
+            ✓ 会社カレンダー案を提案するよ<br>
+            ✓ 法令違反リスクを教えるよ
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ===== 2025年度 都道府県別最低賃金データ（出典：厚生労働省 令和7年度地域別最低賃金答申状況）=====
+  const MIN_WAGES = {
+    '北海道':1075,'青森県':1029,'岩手県':1031,'宮城県':1038,'秋田県':1031,
+    '山形県':1032,'福島県':1033,'茨城県':1074,'栃木県':1068,'群馬県':1063,
+    '埼玉県':1141,'千葉県':1140,'東京都':1226,'神奈川県':1225,'新潟県':1050,
+    '富山県':1062,'石川県':1054,'福井県':1053,'山梨県':1052,'長野県':1061,
+    '岐阜県':1065,'静岡県':1097,'愛知県':1140,'三重県':1087,'滋賀県':1080,
+    '京都府':1122,'大阪府':1177,'兵庫県':1116,'奈良県':1051,'和歌山県':1045,
+    '鳥取県':1030,'島根県':1033,'岡山県':1047,'広島県':1085,'山口県':1043,
+    '徳島県':1046,'香川県':1036,'愛媛県':1033,'高知県':1023,'福岡県':1057,
+    '佐賀県':1030,'長崎県':1031,'熊本県':1034,'大分県':1035,'宮崎県':1023,
+    '鹿児島県':1026,'沖縄県':1023
+  };
+  // 発効日データ（2025年度）
+  const EFFECTIVE_DATES = {
+    '北海道':'2025/10/04','青森県':'2025/11/21','岩手県':'2025/12/01','宮城県':'2025/10/04','秋田県':'2026/03/31',
+    '山形県':'2025/12/23','福島県':'2026/01/01','茨城県':'2025/10/12','栃木県':'2025/10/01','群馬県':'2026/03/01',
+    '埼玉県':'2025/11/01','千葉県':'2025/10/03','東京都':'2025/10/03','神奈川県':'2025/10/04','新潟県':'2025/10/02',
+    '富山県':'2025/10/12','石川県':'2025/10/08','福井県':'2025/10/08','山梨県':'2025/12/01','長野県':'2025/10/03',
+    '岐阜県':'2025/10/18','静岡県':'2025/11/01','愛知県':'2025/10/18','三重県':'2025/11/21','滋賀県':'2025/10/05',
+    '京都府':'2025/11/21','大阪府':'2025/10/16','兵庫県':'2025/10/04','奈良県':'2025/11/16','和歌山県':'2025/11/01',
+    '鳥取県':'2025/10/04','島根県':'2025/11/17','岡山県':'2025/12/01','広島県':'2025/11/01','山口県':'2025/10/16',
+    '徳島県':'2026/01/01','香川県':'2025/10/18','愛媛県':'2025/12/01','高知県':'2025/12/01','福岡県':'2025/11/16',
+    '佐賀県':'2025/11/21','長崎県':'2025/12/01','熊本県':'2026/01/01','大分県':'2026/01/01','宮崎県':'2025/11/16',
+    '鹿児島県':'2025/11/01','沖縄県':'2025/12/01'
+  };
+
+  // ===== 休日ベース日数マップ =====
+  const HOLIDAY_BASE = {
+    '週休2日（土日）': 104,
+    '週休2日（隔週土曜）': 78,
+    '日曜＋祝日': 67,
+    '日曜日のみ': 52,
+    '4週4休': 52,
+  };
+
+  function toggleHolidayExtras() {
+    const val = document.getElementById('holiday_type').value;
+    const wrap = document.getElementById('custom_holiday_days_wrap');
+    wrap.style.display = val === '現場カレンダー' ? 'block' : 'none';
+  }
+
+  function toMinutes(timeStr) {
+    if (!timeStr) return null;
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  // ===== 統合計算エンジン =====
+  function calcAll() {
+    const pref = document.getElementById('work_location').value;
+    if (!pref || !MIN_WAGES[pref]) return;
+    const mw = MIN_WAGES[pref];
+
+    // --- 時間計算 ---
+    const tStart = toMinutes(document.getElementById('time_start').value);
+    const tEnd   = toMinutes(document.getElementById('time_end').value);
+    const workH  = parseFloat(document.getElementById('work_hours_num').value) || 0;
+
+    if (tStart === null || tEnd === null || workH <= 0) return;
+
+    // 拘束時間（時間）
+    let boundMin = tEnd - tStart;
+    if (boundMin <= 0) boundMin += 24 * 60; // 日跨ぎ対応
+    const boundH = Math.round(boundMin / 60 * 10) / 10;
+
+    // 休憩時間 = 拘束 - 実働
+    const restH = Math.round((boundH - workH) * 10) / 10;
+
+    // 休憩時間の表示更新
+    const restDisplay = document.getElementById('rest_time_display');
+    if (restH < 0) {
+      restDisplay.textContent = '⚠️ 実働時間が拘束時間を超えています';
+      restDisplay.style.color = 'var(--accent)';
+      return;
+    }
+    const restMin2 = Math.round(restH * 60);
+    const restHStr = restMin2 >= 60
+      ? `${Math.floor(restMin2/60)}時間${restMin2%60 > 0 ? restMin2%60+'分' : ''}`
+      : `${restMin2}分`;
+    restDisplay.textContent = `${restHStr}（拘束 ${boundH}h − 実働 ${workH}h）`;
+    restDisplay.style.color = 'var(--ink)';
+
+    // --- 年間休日計算 ---
+    const holidayType = document.getElementById('holiday_type').value;
+    let baseHolidays = 0;
+    if (HOLIDAY_BASE[holidayType]) {
+      baseHolidays = HOLIDAY_BASE[holidayType];
+    } else if (holidayType === '現場カレンダー') {
+      baseHolidays = parseInt(document.getElementById('custom_holiday_days').value) || 0;
+    }
+    const gw      = parseInt(document.getElementById('holiday_gw').value)      || 0;
+    const summer  = parseInt(document.getElementById('holiday_summer').value)  || 0;
+    const newyear = parseInt(document.getElementById('holiday_newyear').value) || 0;
+    const totalHolidays = baseHolidays + gw + summer + newyear;
+    const annualWorkDays = 365 - totalHolidays;
+
+    // --- 月平均所定労働時間 ---
+    const annualWorkHours = annualWorkDays * workH;
+    const monthlyWorkH    = Math.round(annualWorkHours / 12 * 10) / 10;
+
+    // --- 月給計算（最低賃金 × 月所定労働時間）---
+    const extra      = parseInt(document.getElementById('wage_extra').value) || 0;
+    const baseSalary = Math.ceil(mw * monthlyWorkH) + extra;
+
+    // --- 割増賃金単価 ---
+    const hourlyRate      = Math.ceil(baseSalary / monthlyWorkH);           // 基本時給
+    const overtimeRate    = Math.ceil(hourlyRate * 1.25);                    // 時間外1.25
+    const holidayRate     = Math.ceil(hourlyRate * 1.35);                    // 休日1.35
+    const lateNightRate   = Math.ceil(hourlyRate * 1.25);                    // 深夜1.25
+    const overtimeLNRate  = Math.ceil(hourlyRate * 1.50);                    // 時間外＋深夜
+
+    // --- 最低賃金チェック ---
+    const actualHourly = baseSalary / monthlyWorkH;
+    const isOK = actualHourly >= mw;
+
+    // --- 画面表示 ---
+    const panel = document.getElementById('calcResultPanel');
+    const content = document.getElementById('calcResultContent');
+    panel.style.display = 'block';
+
+    content.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem 1.5rem;">
+        <span style="opacity:0.6;">拘束時間</span><span><strong>${boundH}時間</strong>（${document.getElementById('time_start').value}〜${document.getElementById('time_end').value}）</span>
+        <span style="opacity:0.6;">実働時間</span><span><strong>${workH}時間</strong></span>
+        <span style="opacity:0.6;">休憩時間</span><span>${restHStr}（自動計算）</span>
+        <span style="opacity:0.6;">年間休日</span><span><strong>${totalHolidays}日</strong>（ベース${baseHolidays}日 ＋ GW${gw}・夏${summer}・年末${newyear}）</span>
+        <span style="opacity:0.6;">年間所定労働日数</span><span>${annualWorkDays}日</span>
+        <span style="opacity:0.6;">月平均所定労働時間</span><span><strong>${monthlyWorkH}h</strong></span>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.15);margin:0.75rem 0;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem 1.5rem;">
+        <span style="opacity:0.6;">基本給（月額）</span>
+        <span style="font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;color:${isOK ? '#4fd1a0' : '#f87171'};">
+          ${baseSalary.toLocaleString()}円
+          <span style="font-size:0.75rem;font-weight:400;opacity:0.8;">${isOK ? '✅ 最低賃金クリア' : '❌ 最低賃金未達'}</span>
+        </span>
+        <span style="opacity:0.6;">時給換算</span><span>${Math.round(actualHourly).toLocaleString()}円（最低賃金 ${mw.toLocaleString()}円）</span>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.15);margin:0.75rem 0;"></div>
+      <div style="opacity:0.7;font-size:0.78rem;margin-bottom:0.3rem;">割増賃金単価（1時間あたり）</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.3rem 0.8rem;font-size:0.8rem;">
+        <span style="opacity:0.6;">時間外（×1.25）</span><span><strong>${overtimeRate.toLocaleString()}円</strong></span><span></span>
+        <span style="opacity:0.6;">休日（×1.35）</span><span><strong>${holidayRate.toLocaleString()}円</strong></span><span></span>
+        <span style="opacity:0.6;">深夜（×1.25）</span><span><strong>${lateNightRate.toLocaleString()}円</strong></span><span></span>
+        <span style="opacity:0.6;">時間外＋深夜（×1.50）</span><span><strong>${overtimeLNRate.toLocaleString()}円</strong></span><span></span>
+      </div>
+    `;
+
+    // minWageBannerの月給目安表示も更新
+    document.getElementById('minWageMonthly').textContent =
+      `計算結果 → 年間休日${totalHolidays}日・月${monthlyWorkH}h → 月給 ${baseSalary.toLocaleString()}円`;
+
+    // 法定控除も自動更新
+    calcLegalDeductionsFromSalary(baseSalary);
+    calcDeductionCheck(baseSalary, monthlyWorkH);
+  }
+
+  function calcLegalDeductionsFromSalary(baseSalary) {
+    let healthPremium = 0, pensionPremium = 0;
+    for (const row of HOKENRYO_TABLE) {
+      if (baseSalary >= row[1] && baseSalary < row[2]) {
+        healthPremium = row[4]; pensionPremium = row[5]; break;
+      }
+    }
+    if (healthPremium === 0) {
+      const last = HOKENRYO_TABLE[HOKENRYO_TABLE.length - 1];
+      healthPremium = last[4]; pensionPremium = last[5];
+    }
+    const employPremium = Math.floor(baseSalary * 0.006);
+    document.getElementById('deduct_health').value  = healthPremium.toLocaleString() + '円';
+    document.getElementById('deduct_pension').value = pensionPremium > 0 ? pensionPremium.toLocaleString() + '円' : '0円';
+    document.getElementById('deduct_employ').value  = employPremium.toLocaleString() + '円';
+    const total = healthPremium + pensionPremium + employPremium;
+    document.getElementById('legal_deduct_auto').innerHTML =
+      `月給 <strong>${baseSalary.toLocaleString()}円</strong> から算出（協会けんぽ標準料率・概算）<br>
+      健保 ${healthPremium.toLocaleString()}円 ＋ 厚年 ${pensionPremium.toLocaleString()}円 ＋ 雇保 ${employPremium.toLocaleString()}円 ＝ <strong>法定控除合計 ${total.toLocaleString()}円</strong><br>
+      <span style="font-size:0.72rem;opacity:0.75;">※都道府県・加入組合・標準報酬月額確定で変わります</span>`;
+  }
+
+  // ===== 標準報酬月額テーブル（2024年度 協会けんぽ 東京都） =====
+  // [等級, 月額以上, 月額未満, 報酬月額, 健保本人, 厚年本人]
+  const HOKENRYO_TABLE = [
+    [1,   0,    63000,  58000,  2869,  0],
+    [2,   63000, 73000,  68000,  3362,  0],
+    [3,   73000, 83000,  78000,  3855,  0],
+    [4,   83000, 93000,  88000,  4348,  0],
+    [5,   93000, 101000, 98000,  4841,  9150],
+    [6,   101000,107000, 104000, 5136,  9150],
+    [7,   107000,114000, 110000, 5432,  9150],
+    [8,   114000,122000, 118000, 5827,  10985],
+    [9,   122000,130000, 126000, 6222,  11745],
+    [10,  130000,138000, 134000, 6617,  12505],
+    [11,  138000,146000, 142000, 7011,  13265],
+    [12,  146000,155000, 150000, 7406,  14025],
+    [13,  155000,165000, 160000, 7898,  14925],
+    [14,  165000,175000, 170000, 8391,  15825],
+    [15,  175000,185000, 180000, 8884,  16725],
+    [16,  185000,195000, 190000, 9377,  17650],
+    [17,  195000,210000, 200000, 9870,  18540], // ←実習生の主な該当帯
+    [18,  210000,230000, 220000, 10857, 20130],
+    [19,  230000,250000, 240000, 11844, 21930],
+    [20,  250000,270000, 260000, 12831, 23730],
+    [21,  270000,290000, 280000, 13818, 25530],
+    [22,  290000,310000, 300000, 14805, 27330],
+    [23,  310000,330000, 320000, 15792, 29130],
+    [24,  330000,350000, 340000, 16779, 30930],
+    [25,  350000,370000, 360000, 17766, 32730],
+    [26,  370000,395000, 380000, 18753, 34530],
+    [27,  395000,425000, 410000, 20234, 37230],
+    [28,  425000,455000, 440000, 21714, 39930],
+    [29,  455000,485000, 470000, 23195, 42630],
+    [30,  485000,515000, 500000, 24675, 45300],
+    [31,  515000,545000, 530000, 26155, 45300],
+    [32,  545000,575000, 560000, 27636, 45300],
+    [33,  575000,605000, 590000, 29116, 45300],
+    [34,  605000,635000, 620000, 30597, 45300],
+    [35,  635000,665000, 650000, 32077, 45300],
+    [36,  665000,695000, 680000, 33558, 45300],
+    [37,  695000,730000, 710000, 35038, 45300],
+    [38,  730000,770000, 750000, 37008, 45300],
+    [39,  770000,810000, 790000, 39967, 45300],
+    [40,  810000,855000, 830000, 40948, 45300],
+    [41,  855000,905000, 880000, 43415, 45300],
+    [42,  905000,955000, 930000, 45885, 45300],
+    [43,  955000,1005000,980000, 48358, 45300],
+    [44,  1005000,1055000,1030000,50828,45300],
+    [45,  1055000,1115000,1090000,53791,45300],
+    [46,  1115000,1175000,1150000,56753,45300],
+    [47,  1175000,9999999,1210000,59716,45300],
+  ];
+  // ※健保料率：東京都 協会けんぽ 2024年度 9.87%（労労折半）→本人4.935% として概算
+  // 上表の健保本人は協会けんぽ全国平均（10%=5%本人）で概算。厚年は18.3%折半9.15%。
+
+  // ===== 特定最低賃金データ（2025年度 主要・技能実習関連業種） =====
+  // [都道府県, 業種キーワード, 賃金, 名称]
+  const TOKUTEI_WAGES = [
+    // 機械・金属系
+    ['東京都',    '機械・金属', 1302, '東京都 電気機械器具製造業'],
+    ['神奈川県',  '機械・金属', 1299, '神奈川県 電気機械器具製造業'],
+    ['愛知県',    '機械・金属', 1273, '愛知県 自動車・同部品製造業'],
+    ['大阪府',    '機械・金属', 1250, '大阪府 電気機械器具製造業'],
+    ['静岡県',    '機械・金属', 1200, '静岡県 輸送用機械器具製造業'],
+    ['埼玉県',    '機械・金属', 1199, '埼玉県 電気機械器具製造業'],
+    ['兵庫県',    '機械・金属', 1188, '兵庫県 電気機械器具製造業'],
+    ['千葉県',    '機械・金属', 1183, '千葉県 電気機械器具製造業'],
+    ['広島県',    '機械・金属', 1171, '広島県 自動車・同部品製造業'],
+    ['茨城県',    '機械・金属', 1147, '茨城県 電気機械器具製造業'],
+    ['栃木県',    '機械・金属', 1141, '栃木県 電気機械器具製造業'],
+    ['群馬県',    '機械・金属', 1136, '群馬県 自動車・同部品製造業'],
+    ['福岡県',    '機械・金属', 1122, '福岡県 電気機械器具製造業'],
+    // 食品製造
+    ['東京都',    '食品製造',   1275, '東京都 各種商品小売業（食料品）'],
+    // 繊維・縫製
+    ['大阪府',    '繊維・縫製', 1177, '大阪府 繊維工業'],
+    ['愛知県',    '繊維・縫製', 1140, '愛知県 繊維工業'],
+  ];
+
+  // 業種が建設系かどうか
+  function isConstruction(industry) {
+    return industry.startsWith('建設');
+  }
+
+  // ===== 業種変更ハンドラ =====
+  function onIndustryChange() {
+    showIndustryAlert();
+    calcAll();
+  }
+
+  function showIndustryAlert() {
+    const industry = document.getElementById('industry').value;
+    const pref     = document.getElementById('work_location').value;
+    const box      = document.getElementById('industryAlertBox');
+    if (!industry) { box.style.display = 'none'; return; }
+
+    const alerts = [];
+
+    // ① 建設業：4週8休推奨
+    if (isConstruction(industry)) {
+      alerts.push({
+        type: 'warn',
+        icon: '🏗️',
+        title: '建設業：週休2日（4週8休以上）を推奨',
+        body: '国土交通省の方針により、公共工事・民間工事ともに4週8休（年間休日104日以上）が強く求められています。監理団体として実施者に4週8休カレンダーの採用を指導することを推奨します。また建設キャリアアップシステム（CCUS）への登録も義務付けられています。'
+      });
+    }
+
+    // ② 農業：労基法適用除外
+    if (industry === '農業') {
+      alerts.push({
+        type: 'info',
+        icon: '🌾',
+        title: '農業：労働時間・休日・休憩の規定は適用除外（労基法41条）',
+        body: '農業は労基法の労働時間・休日・休憩に関する規定（32〜34条）が適用されません。そのため36協定の締結・時間外割増賃金の支払義務もありません。ただし最低賃金法・安全衛生法は適用されます。雇用条件書には「労働時間：農繁期に応じて変動」等の記載が適切です。'
+      });
+    }
+
+    // ③ 特定最低賃金チェック（都道府県×業種）
+    if (pref) {
+      for (const [tw_pref, tw_industry, tw_wage, tw_name] of TOKUTEI_WAGES) {
+        if (pref === tw_pref && industry.includes(tw_industry.split('・')[0])) {
+          const mw = MIN_WAGES[pref] || 0;
+          if (tw_wage > mw) {
+            alerts.push({
+              type: 'danger',
+              icon: '⚠️',
+              title: `特定最低賃金が適用される可能性：${tw_wage.toLocaleString()}円/時間`,
+              body: `「${tw_name}」の特定最低賃金 <strong>${tw_wage.toLocaleString()}円</strong> は地域別最低賃金 ${mw.toLocaleString()}円 より <strong>+${(tw_wage-mw).toLocaleString()}円 高く</strong>、こちらが適用されます。月給計算の基準を特定最低賃金に引き上げてください。技能実習生が対象業種に該当するか、都道府県労働局で確認してください。`
+            });
+          }
+          break;
+        }
+      }
+    }
+
+    if (alerts.length === 0) { box.style.display = 'none'; return; }
+
+    const colorMap = { warn:'alert-warn', info:'alert-info', danger:'alert-danger' };
+    box.style.display = 'block';
+    box.innerHTML = alerts.map(a => `
+      <div class="alert-box ${colorMap[a.type]}" style="margin-bottom:0.5rem;">
+        <strong>${a.icon} ${a.title}</strong><br>
+        <span style="font-size:0.8rem;line-height:1.6;">${a.body}</span>
+      </div>`).join('');
+  }
+
+  function calcLegalDeductions() { /* 後方互換のため残す → calcAll経由に */ calcAll(); }
+
+  function updateMinWage() {
+    const pref = document.getElementById('work_location').value;
+    const banner = document.getElementById('minWageBanner');
+    if (!pref || !MIN_WAGES[pref]) { banner.style.display = 'none'; return; }
+    const mw = MIN_WAGES[pref];
+    const effDate = EFFECTIVE_DATES[pref] || '';
+    banner.style.display = 'block';
+    document.getElementById('minWageDisplay').textContent = mw.toLocaleString();
+    document.getElementById('minWagePrefDisplay').textContent = `${pref}　発効日：${effDate}`;
+    document.getElementById('minWageMonthly').textContent = `最低賃金 ${mw}円 → 時間数・休日を入力すると月給を自動計算します`;
+    showIndustryAlert(); // 都道府県変更時も特定最低賃金を再チェック
+    calcAll();
+  }
+
+  function parseAmount(str) {
+    if (!str) return 0;
+    const n = parseInt(str.replace(/[^0-9]/g, ''));
+    return isNaN(n) ? 0 : n;
+  }
+
+  function calcDeductionCheck(baseSalary, monthlyWorkH) {
+    const pref = document.getElementById('work_location').value;
+    if (!pref || !MIN_WAGES[pref]) return;
+    const mw = MIN_WAGES[pref];
+
+    if (!baseSalary) {
+      baseSalary  = Math.ceil(MIN_WAGES[pref] * 171.7);
+      monthlyWorkH = 171.7;
+    }
+
+    // 生活費控除（最低賃金比較対象外：家賃・光熱費・食費）
+    const rent    = parseAmount(document.getElementById('deduct_rent').value);
+    const utility = parseAmount(document.getElementById('deduct_utility').value);
+    const food    = parseAmount(document.getElementById('deduct_food').value);
+    const livingDeduct = rent + utility + food;
+
+    // 最低賃金比較対象の控除（Wi-Fi等・その他）
+    const wifi  = parseAmount(document.getElementById('deduct_wifi').value);
+    const other = parseAmount(document.getElementById('deduct_other').value);
+    const mwTargetDeduct = wifi + other;
+
+    const totalDeduct = livingDeduct + mwTargetDeduct;
+    if (totalDeduct === 0) { document.getElementById('deductionCheckBox').style.display = 'none'; return; }
+
+    const health  = parseAmount(document.getElementById('deduct_health').value);
+    const pension = parseAmount(document.getElementById('deduct_pension').value);
+    const employ  = parseAmount(document.getElementById('deduct_employ').value);
+    const totalLegal = health + pension + employ;
+
+    // 最低賃金比較：最低賃金比較対象控除のみ差し引いた後の時給
+    const salaryForMwCheck = baseSalary - mwTargetDeduct;
+    const hourlyForMw = Math.round(salaryForMwCheck / monthlyWorkH);
+    const isMwOK = hourlyForMw >= mw;
+
+    // 実質手取り（全控除後）
+    const netAfterLiving  = baseSalary - livingDeduct;          // 生活費控除後
+    const netAfterAll     = baseSalary - totalDeduct - totalLegal; // 全控除後
+
+    document.getElementById('deductionCheckBox').style.display = 'block';
+    document.getElementById('deductionCalcResult').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.35rem 1rem;margin-bottom:0.75rem;">
+        <span style="color:var(--muted);">基本給（月額）</span>
+        <span><strong>${baseSalary.toLocaleString()}円</strong></span>
+
+        <span style="color:var(--muted);font-size:0.78rem;padding-top:0.2rem;">── 生活費控除（最低賃金比較対象外）</span><span></span>
+        ${rent    > 0 ? `<span style="color:var(--muted);padding-left:0.8rem;">家賃</span><span style="color:#6b7280;">▲ ${rent.toLocaleString()}円</span>` : ''}
+        ${utility > 0 ? `<span style="color:var(--muted);padding-left:0.8rem;">水道・光熱費</span><span style="color:#6b7280;">▲ ${utility.toLocaleString()}円</span>` : ''}
+        ${food    > 0 ? `<span style="color:var(--muted);padding-left:0.8rem;">食費</span><span style="color:#6b7280;">▲ ${food.toLocaleString()}円</span>` : ''}
+
+        ${mwTargetDeduct > 0 ? `<span style="color:var(--muted);font-size:0.78rem;padding-top:0.2rem;">── 最低賃金比較対象の控除</span><span></span>` : ''}
+        ${wifi  > 0 ? `<span style="color:var(--muted);padding-left:0.8rem;">通信費（Wi-Fi）</span><span style="color:var(--accent);">▲ ${wifi.toLocaleString()}円</span>` : ''}
+        ${other > 0 ? `<span style="color:var(--muted);padding-left:0.8rem;">その他</span><span style="color:var(--accent);">▲ ${other.toLocaleString()}円</span>` : ''}
+
+        <span style="color:var(--muted);border-top:1px solid var(--border);padding-top:0.4rem;">実質手取り（生活費控除後）</span>
+        <span style="border-top:1px solid var(--border);padding-top:0.4rem;"><strong>${netAfterLiving.toLocaleString()}円</strong></span>
+
+        ${totalLegal > 0 ? `
+        <span style="color:var(--muted);">法定控除合計（参考）</span>
+        <span style="color:var(--muted);">▲ ${totalLegal.toLocaleString()}円</span>
+        <span style="color:var(--muted);">全控除後 手取り（参考）</span>
+        <span>${netAfterAll.toLocaleString()}円</span>` : ''}
+      </div>
+
+      <div class="alert-box ${isMwOK ? 'alert-success' : 'alert-danger'}">
+        ${isMwOK ? '✅' : '❌'} <strong>最低賃金チェック</strong>（Wi-Fi等控除後）：時給換算 <strong>${hourlyForMw.toLocaleString()}円</strong>（最低賃金 ${mw.toLocaleString()}円）<br>
+        ${isMwOK
+          ? '最低賃金比較対象の控除後も最低賃金をクリアしています。'
+          : '⚠️ Wi-Fi等の控除を差し引くと最低賃金を下回ります。控除額を見直してください。'}
+      </div>
+      ${livingDeduct > 0 ? `
+      <div class="alert-box alert-info" style="margin-top:0.5rem;font-size:0.78rem;">
+        ℹ️ 家賃・光熱費・食費（計 ${livingDeduct.toLocaleString()}円）は最低賃金の比較計算には影響しませんが、実質手取り ${netAfterLiving.toLocaleString()}円 が著しく低い場合はOTIT審査で指摘されることがあります。
+      </div>` : ''}
+    `;
+  }
+
+  // 旧calcDailyToMonthly → 不要になったため空関数
+  function calcDailyToMonthly() {}
+
+  // Toggle buttons behavior
+  document.querySelectorAll('.toggle-group').forEach(group => {
+    group.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (group.id === 'overtime_toggle') {
+          const val = btn.dataset.val;
+          const warn = document.getElementById('overtime_warn');
+          warn.style.display = (val === '多い（40〜60h）' || val === '繁忙期は60h超') ? 'block' : 'none';
+        }
+      });
+    });
+  });
+
+  function getToggleValue(groupId) {
+    const active = document.querySelector(`#${groupId} .toggle-btn.active`);
+    return active ? active.dataset.val : '';
+  }
+
+  let outputText = '';
+
+  async function generateConditions() {
+    const company = document.getElementById('company_name').value.trim();
+    const industry = document.getElementById('industry').value;
+    const pref = document.getElementById('work_location').value;
+    const wagePolicy    = document.getElementById('wage_policy').value;
+    const wageExtra     = parseInt(document.getElementById('wage_extra').value) || 0;
+    const commuteAllowance = document.getElementById('commute_allowance').value;
+    const otherAllowance   = document.getElementById('other_allowance').value.trim();
+
+    // 時間・休日から計算値を取得
+    const tStart = document.getElementById('time_start').value;
+    const tEnd   = document.getElementById('time_end').value;
+    const workH  = parseFloat(document.getElementById('work_hours_num').value) || 0;
+    const boundMin = (() => { let d = toMinutes(tEnd) - toMinutes(tStart); if(d<=0)d+=1440; return d; })();
+    const boundH = Math.round(boundMin/60*10)/10;
+    const restH  = Math.round((boundH - workH)*10)/10;
+
+    const holidayType = document.getElementById('holiday_type').value;
+    let baseHolidays = HOLIDAY_BASE[holidayType] || 0;
+    if (holidayType === '現場カレンダー') baseHolidays = parseInt(document.getElementById('custom_holiday_days').value) || 0;
+    const gw      = parseInt(document.getElementById('holiday_gw').value) || 0;
+    const summer  = parseInt(document.getElementById('holiday_summer').value) || 0;
+    const newyear = parseInt(document.getElementById('holiday_newyear').value) || 0;
+    const totalHolidays  = baseHolidays + gw + summer + newyear;
+    const annualWorkDays = 365 - totalHolidays;
+    const monthlyWorkH   = Math.round(annualWorkDays * workH / 12 * 10) / 10;
+    const mw = MIN_WAGES[pref] || 0;
+    const baseSalary = Math.ceil(mw * monthlyWorkH) + wageExtra;
+    const hourlyRate = Math.ceil(baseSalary / monthlyWorkH);
+
+    const holidayDetail = `${holidayType}（ベース${baseHolidays}日）＋GW${gw}日・夏季${summer}日・年末年始${newyear}日 ＝ 年間休日${totalHolidays}日`;
+    const busySeason = document.getElementById('busy_season').value.trim();
+    const overtime = getToggleValue('overtime_toggle');
+    const agreement36 = getToggleValue('agreement36_toggle');
+    const flexWork = getToggleValue('flex_toggle');
+    const dormitory = getToggleValue('dormitory_toggle') || 'なし';
+    const notes = document.getElementById('notes').value.trim();
+
+    // 控除情報収集
+    const deductHealth  = document.getElementById('deduct_health').value.trim();
+    const deductPension = document.getElementById('deduct_pension').value.trim();
+    const deductEmploy  = document.getElementById('deduct_employ').value.trim();
+    const deductRent    = document.getElementById('deduct_rent').value.trim();
+    const deductUtility = document.getElementById('deduct_utility').value.trim();
+    const deductWifi    = document.getElementById('deduct_wifi').value.trim();
+    const deductFood    = document.getElementById('deduct_food').value.trim();
+    const deductOther   = document.getElementById('deduct_other').value.trim();
+    const cooperativeDeductTotal = parseAmount(deductRent) + parseAmount(deductUtility) + parseAmount(deductWifi) + parseAmount(deductFood) + parseAmount(deductOther);
+
+    if (!industry) { alert('業種を選択してください'); return; }
+    if (!pref) { alert('就労都道府県を選択してください'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ ジョウケンくんが考え中...';
+
+    const outputArea = document.getElementById('outputArea');
+    outputArea.innerHTML = `
+      <div class="loading-wrap">
+        <div class="spinner"></div>
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+        <p style="font-size:0.85rem;">ジョウケンくんが労働法令を確認しながら<br>最適な条件を設計中だよ…</p>
+      </div>
+    `;
+
+    const effDate = EFFECTIVE_DATES[pref] || '';
+
+    const prompt = `あなたは日本の労働法（労働基準法、最低賃金法）と技能実習制度・育成就労制度に精通した社会保険労務士です。
+監理団体のスタッフとして、実施企業（受入企業）に雇用条件書の内容を設計・提案する立場でアドバイスしてください。
+
+【前提条件】
+- 技能実習生・育成就労外国人材の雇用条件書を作成する
+- 賃金は月給制で、基本給は就労地の地域別最低賃金を基準とする
+
+【企業情報】
+- 会社名：${company || '（未入力）'}
+- 業種：${industry}
+- 就労都道府県：${pref}
+- 地域別最低賃金：${mw}円/時間（2025年度・発効日：${effDate}）
+${isConstruction(industry) ? '- 【建設業】4週8休（年間休日104日以上）推奨。CCUS登録義務あり。' : ''}
+${industry === '農業' ? '- 【農業】労基法41条により労働時間・休日・休憩の規定は適用除外。36協定・時間外割増賃金の義務なし。' : ''}
+${(() => {
+  for (const [tw_pref, tw_industry, tw_wage, tw_name] of TOKUTEI_WAGES) {
+    if (pref === tw_pref && industry.includes(tw_industry.split('・')[0]) && tw_wage > mw) {
+      return `- 【特定最低賃金】「${tw_name}」${tw_wage}円/時間が適用される可能性あり（地域別${mw}円より+${tw_wage-mw}円）。月給計算の基準を特定最低賃金に引き上げること。`;
+    }
+  }
+  return '';
+})()}
+
+【賃金設定（自動計算済）】
+- 月給方針：${wagePolicy}${wageExtra > 0 ? `（上乗せ ${wageExtra.toLocaleString()}円）` : ''}
+- 月平均所定労働時間：${monthlyWorkH}h
+- 基本給（月額）：${baseSalary.toLocaleString()}円
+- 時給換算：${hourlyRate.toLocaleString()}円（最低賃金${mw}円${hourlyRate >= mw ? ' ✅クリア' : ' ❌未達'}）
+- 時間外割増単価：${Math.ceil(hourlyRate*1.25).toLocaleString()}円/h（×1.25）
+- 休日割増単価：${Math.ceil(hourlyRate*1.35).toLocaleString()}円/h（×1.35）
+- 通勤手当：${commuteAllowance}
+- その他手当：${otherAllowance || 'なし'}
+
+【労働時間（計算済）】
+- 拘束時間：${tStart}〜${tEnd}（${boundH}時間）
+- 実働時間：${workH}時間／日
+- 休憩時間：${restH}時間（自動計算）
+- 休日・特別休暇：${holidayDetail}
+- 年間所定労働日数：${annualWorkDays}日
+- 繁閑の特徴：${busySeason || 'なし'}
+
+【時間外労働・36協定】
+- 月平均残業時間：${overtime || '（未選択）'}
+- 36協定の状況：${agreement36 || '（未選択）'}
+- 変形労働時間制：${flexWork || '（未選択）'}
+
+【宿舎・控除の詳細】
+- 宿舎：${dormitory}
+＜法定控除（賃金比較対象外）＞
+- 健康保険料：${deductHealth || '未入力'}
+- 厚生年金保険料：${deductPension || '未入力'}
+- 雇用保険料：${deductEmploy || '未入力'}
+＜生活費控除（労使協定必要・最低賃金比較対象外）＞
+- 家賃（宿舎費）：${deductRent || 'なし'}（現物給与評価額の範囲内が条件）
+- 水道・光熱費：${deductUtility || 'なし'}（実費按分が必要）
+- 食費：${deductFood || 'なし'}（実費相当額のみ）
+＜最低賃金比較対象の控除（労使協定必要）＞
+- 通信費（Wi-Fi）：${deductWifi || 'なし'}
+- その他：${deductOther || 'なし'}
+- 生活費控除合計（最低賃金比較対象外）：${(parseAmount(deductRent)+parseAmount(deductUtility)+parseAmount(deductFood)).toLocaleString()}円
+- 最低賃金比較対象控除合計：${(parseAmount(deductWifi)+parseAmount(deductOther)).toLocaleString()}円
+
+【その他・懸念点】
+${notes || '特になし'}
+
+---
+
+以下の構成で実務的に回答してください。計算式と具体的な数字を必ず示してください。
+
+## 1. 推奨月給額の設計
+${pref}の最低賃金${mw}円をベースに、最適な月給額と所定労働時間の組み合わせを提案してください。日給制からの換算が必要な場合は最低賃金割れのリスクも検証してください。
+
+## 2. 控除設計の適法チェックと推奨額
+家賃・光熱費・食費は最低賃金の比較計算対象外ですが労使協定が必要な生活費控除です。通信費等は最低賃金の比較対象になります。それぞれの適法性（現物給与評価額・実費按分・労使協定の要件）と、控除後の実質手取りがOTIT審査上問題ないか確認してください。
+
+## 3. 労働時間制度の提案
+業種・繁閑パターンを踏まえ、最適な制度（通常／1ヶ月変形／1年変形）を理由付きで提案してください。
+
+## 4. 36協定の設計
+現状の残業実態に対して適切な協定時間数を提示し、特別条項の要否も判断してください。
+
+## 5. 会社カレンダーの提案
+業種に適した年間休日数と休日の配置案を提示してください。
+
+## 6. 雇用条件書 主要記載項目（記載例）
+雇用条件書に記載すべき主要項目を表形式で推奨値とともに示してください。
+
+## 7. 監理団体からの確認・指導事項
+実施企業に対して監理団体として確認・指導すべきポイントをリスト化してください。
+
+専門的かつ実務的に、計算例を交えて説明してください。`;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 3000,
+          stream: true,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      outputArea.innerHTML = '<div class="output-content" id="outputContent"></div>';
+      const contentDiv = document.getElementById('outputContent');
+      outputText = '';
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+                outputText += parsed.delta.text;
+                contentDiv.innerHTML = formatOutput(outputText) + '<span class="stream-cursor"></span>';
+                outputArea.scrollTop = outputArea.scrollHeight;
+              }
+            } catch {}
+          }
+        }
+      }
+
+      contentDiv.innerHTML = formatOutput(outputText);
+      document.getElementById('copyBtn').style.display = 'flex';
+
+    } catch (err) {
+      outputArea.innerHTML = `<div class="alert-box alert-danger">エラーが発生しました: ${err.message}</div>`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>📋</span> ジョウケンくんに作ってもらう！';
+    }
+  }
+
+  function formatOutput(text) {
+    let html = text
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^⚠️(.+)$/gm, '<div class="alert-box alert-warn">⚠️$1</div>')
+      .replace(/^✅(.+)$/gm, '<div class="alert-box alert-success">✅$1</div>')
+      .replace(/^❌(.+)$/gm, '<div class="alert-box alert-danger">❌$1</div>')
+      .replace(/^ℹ️(.+)$/gm, '<div class="alert-box alert-info">ℹ️$1</div>')
+      .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:1rem 0;">')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/^・(.+)$/gm, '<li>$1</li>')
+      .replace(/^(\d+)\. (.+)$/gm, '<li><strong>$1.</strong> $2</li>')
+      .replace(/(<li>.*<\/li>\n?)+/g, match => `<ul>${match}</ul>`)
+      .replace(/\n{2,}/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+    return `<p>${html}</p>`;
+  }
+
+  function copyOutput() {
+    navigator.clipboard.writeText(outputText).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✓ コピー完了';
+      setTimeout(() => { btn.innerHTML = '📋 コピー'; }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
