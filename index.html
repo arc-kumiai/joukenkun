@@ -558,6 +558,26 @@
       <!-- 業種別警告エリア -->
       <div id="industryAlertBox" style="display:none; margin-top:0.75rem;"></div>
     </div>
+
+    <!-- 配属予定日 -->
+    <div class="section-card">
+      <div class="section-label">📅 配属予定日</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>配属予定日 <span class="required-mark">*</span></label>
+          <input type="date" id="assign_date" oninput="calcAll()" style="font-size:0.9rem;">
+        </div>
+        <div class="form-group">
+          <label>雇用契約期間</label>
+          <select id="contract_period" onchange="calcAll()">
+            <option value="1">1年間</option>
+            <option value="2">2年間</option>
+            <option value="3">3年間（技能実習標準）</option>
+          </select>
+        </div>
+      </div>
+      <div id="calendarCheckBox" style="display:none; margin-top:0.75rem;"></div>
+    </div>
     <div class="section-card">
       <div class="section-label">💴 賃金設計（月給制・最低賃金ベース）</div>
 
@@ -961,7 +981,7 @@
     restDisplay.textContent = `${restHStr}（拘束 ${boundH}h − 実働 ${workH}h）`;
     restDisplay.style.color = 'var(--ink)';
 
-    // --- 年間休日計算 ---
+    // --- 年間休日・実暦計算 ---
     const holidayType = document.getElementById('holiday_type').value;
     let baseHolidays = 0;
     if (HOLIDAY_BASE[holidayType]) {
@@ -973,15 +993,75 @@
     const summer  = parseInt(document.getElementById('holiday_summer').value)  || 0;
     const newyear = parseInt(document.getElementById('holiday_newyear').value) || 0;
     const totalHolidays = baseHolidays + gw + summer + newyear;
-    const annualWorkDays = 365 - totalHolidays;
 
-    // --- 月平均所定労働時間 ---
-    const annualWorkHours = annualWorkDays * workH;
-    const monthlyWorkH    = Math.round(annualWorkHours / 12 * 10) / 10;
+    // 配属予定日から実暦計算
+    const assignDateStr = document.getElementById('assign_date').value;
+    const contractYears = parseInt(document.getElementById('contract_period').value) || 1;
 
-    // --- 月給計算（最低賃金 × 月所定労働時間）---
-    const extra      = parseInt(document.getElementById('wage_extra').value) || 0;
-    const baseSalary = Math.ceil(mw * monthlyWorkH) + extra;
+    let annualWorkDays, annualWorkHours, monthlyWorkH;
+    let calendarDetail = '';
+    let worstMonthH = 0; // 最も労働時間が多い月
+
+    if (assignDateStr) {
+      // 実暦で各月の日数・労働日数を計算
+      const startDate = new Date(assignDateStr);
+      const monthlyData = []; // 各月の情報
+
+      for (let m = 0; m < 12 * contractYears; m++) {
+        const y = startDate.getFullYear() + Math.floor((startDate.getMonth() + m) / 12);
+        const mo = (startDate.getMonth() + m) % 12; // 0-11
+        // その月の日数（閏年対応）
+        const daysInMonth = new Date(y, mo + 1, 0).getDate();
+        // 休日按分（年間休日 / 365 * その月の日数）
+        const holidaysInMonth = Math.round(totalHolidays / 365 * daysInMonth);
+        const workDaysInMonth = daysInMonth - holidaysInMonth;
+        const workHoursInMonth = Math.round(workDaysInMonth * workH * 10) / 10;
+        monthlyData.push({
+          year: y, month: mo + 1, daysInMonth, workDaysInMonth, workHoursInMonth
+        });
+        if (workHoursInMonth > worstMonthH) worstMonthH = workHoursInMonth;
+      }
+
+      // 年間合計（1年目）
+      const firstYear = monthlyData.slice(0, 12);
+      annualWorkDays  = firstYear.reduce((s, d) => s + d.workDaysInMonth, 0);
+      annualWorkHours = Math.round(firstYear.reduce((s, d) => s + d.workHoursInMonth, 0) * 10) / 10;
+      monthlyWorkH    = Math.round(annualWorkHours / 12 * 10) / 10;
+
+      // 月別詳細テーブル（最初の12ヶ月）
+      calendarDetail = `
+        <div style="margin-top:0.5rem;">
+          <p style="font-size:0.7rem;opacity:0.6;margin-bottom:0.4rem;">月別所定労働時間（1年目）</p>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.3rem;font-size:0.75rem;">
+            ${firstYear.map(d => `
+              <div style="background:rgba(255,255,255,${d.workHoursInMonth === worstMonthH ? '0.15' : '0.06'});border-radius:3px;padding:0.3rem 0.4rem;${d.workHoursInMonth === worstMonthH ? 'border:1px solid #f87171;' : ''}">
+                <div style="opacity:0.6;">${d.year}/${d.month}月</div>
+                <div style="font-weight:700;">${d.workHoursInMonth}h</div>
+                <div style="opacity:0.5;font-size:0.68rem;">${d.workDaysInMonth}日</div>
+              </div>`).join('')}
+          </div>
+          <p style="font-size:0.7rem;margin-top:0.4rem;color:#f87171;">🔴 赤枠 = 最も労働時間が多い月（${worstMonthH}h）← この月でも最低賃金をクリアする月給を設定</p>
+        </div>`;
+
+      // カレンダーチェックボックスに表示
+      const calBox = document.getElementById('calendarCheckBox');
+      calBox.style.display = 'block';
+      calBox.innerHTML = `<div class="hint-box">📅 配属日：${assignDateStr}　契約期間：${contractYears}年間　閏年対応済み</div>`;
+
+    } else {
+      // 配属日未入力時は365日で概算
+      annualWorkDays  = 365 - totalHolidays;
+      annualWorkHours = annualWorkDays * workH;
+      monthlyWorkH    = Math.round(annualWorkHours / 12 * 10) / 10;
+      worstMonthH     = monthlyWorkH; // 概算では月平均を使用
+    }
+
+    // --- 月給計算（最悪月でも最低賃金を割らない額）---
+    const extra = parseInt(document.getElementById('wage_extra').value) || 0;
+    // 実暦あり：最も労働時間が多い月でも最低賃金をクリアする月給
+    // 実暦なし：月平均で計算
+    const baseSalaryMin = Math.ceil(mw * (worstMonthH || monthlyWorkH)) + extra;
+    const baseSalary = baseSalaryMin;
 
     // --- 割増賃金単価 ---
     const hourlyRate      = Math.ceil(baseSalary / monthlyWorkH);           // 基本時給
@@ -1008,7 +1088,9 @@
         <span style="opacity:0.6;">年間所定労働日数</span><span>${annualWorkDays}日</span>
         <span style="opacity:0.6;">年間総労働時間</span><span><strong>${annualWorkHours.toLocaleString()}時間</strong></span>
         <span style="opacity:0.6;">月平均所定労働時間</span><span><strong>${monthlyWorkH}h</strong></span>
+        ${assignDateStr ? `<span style="opacity:0.6;">最長労働月</span><span style="color:#f87171;"><strong>${worstMonthH}h</strong>（この月基準で月給設定）</span>` : ''}
       </div>
+      ${calendarDetail}
       <div style="height:1px;background:rgba(255,255,255,0.15);margin:0.75rem 0;"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem 1.5rem;">
         <span style="opacity:0.6;">基本給（月額）</span>
@@ -1352,10 +1434,35 @@
     const summer  = parseInt(document.getElementById('holiday_summer').value) || 0;
     const newyear = parseInt(document.getElementById('holiday_newyear').value) || 0;
     const totalHolidays  = baseHolidays + gw + summer + newyear;
-    const annualWorkDays = 365 - totalHolidays;
-    const monthlyWorkH   = Math.round(annualWorkDays * workH / 12 * 10) / 10;
+
+    // 配属予定日・実暦計算
+    const assignDateStr   = document.getElementById('assign_date').value;
+    const contractYears   = parseInt(document.getElementById('contract_period').value) || 1;
+    let annualWorkDays, monthlyWorkH, worstMonthH = 0, worstMonthLabel = '';
+
+    if (assignDateStr) {
+      const startDate = new Date(assignDateStr);
+      const firstYear = [];
+      for (let m = 0; m < 12; m++) {
+        const y  = startDate.getFullYear() + Math.floor((startDate.getMonth() + m) / 12);
+        const mo = (startDate.getMonth() + m) % 12;
+        const daysInMonth = new Date(y, mo + 1, 0).getDate();
+        const holidaysInMonth = Math.round(totalHolidays / 365 * daysInMonth);
+        const workDaysInMonth = daysInMonth - holidaysInMonth;
+        const workHoursInMonth = Math.round(workDaysInMonth * workH * 10) / 10;
+        firstYear.push({ year: y, month: mo + 1, workDaysInMonth, workHoursInMonth });
+        if (workHoursInMonth > worstMonthH) { worstMonthH = workHoursInMonth; worstMonthLabel = `${y}年${mo+1}月`; }
+      }
+      annualWorkDays = firstYear.reduce((s, d) => s + d.workDaysInMonth, 0);
+      monthlyWorkH   = Math.round(firstYear.reduce((s, d) => s + d.workHoursInMonth, 0) / 12 * 10) / 10;
+    } else {
+      annualWorkDays = 365 - totalHolidays;
+      monthlyWorkH   = Math.round(annualWorkDays * workH / 12 * 10) / 10;
+      worstMonthH    = monthlyWorkH;
+    }
+
     const mw = MIN_WAGES[pref] || 0;
-    const baseSalary = Math.ceil(mw * monthlyWorkH) + wageExtra;
+    const baseSalary = Math.ceil(mw * (worstMonthH || monthlyWorkH)) + wageExtra;
     const hourlyRate = Math.ceil(baseSalary / monthlyWorkH);
 
     const holidayDetail = `${holidayType}（ベース${baseHolidays}日）＋GW${gw}日・夏季${summer}日・年末年始${newyear}日 ＝ 年間休日${totalHolidays}日`;
@@ -1395,8 +1502,8 @@
 
     const effDate = EFFECTIVE_DATES[pref] || '';
 
-    const prompt = `あなたは日本の労働法（労働基準法、最低賃金法）と技能実習制度・育成就労制度に精通した社会保険労務士です。
-監理団体のスタッフとして、実施企業（受入企業）に雇用条件書の内容を設計・提案する立場でアドバイスしてください。
+    const prompt = `あなたは「ジョウケンくん」です。日本の労働法（労働基準法、最低賃金法）と技能実習制度・育成就労制度に精通したAIアシスタントです。
+「ジョウケンくんです！」と名乗り、実施企業の雇用条件書の内容を設計・提案してください。回答は日本語で、実務的かつ簡潔にまとめてください。
 
 【前提条件】
 - 技能実習生・育成就労外国人材の雇用条件書を作成する
@@ -1418,10 +1525,13 @@ ${(() => {
   return '';
 })()}
 
-【賃金設定（自動計算済）】
+【賃金設定（実暦計算済）】
+- 配属予定日：${assignDateStr || '（未入力・概算）'}
+- 契約期間：${contractYears}年間
 - 月給方針：${wagePolicy}${wageExtra > 0 ? `（上乗せ ${wageExtra.toLocaleString()}円）` : ''}
 - 月平均所定労働時間：${monthlyWorkH}h
-- 基本給（月額）：${baseSalary.toLocaleString()}円
+- 最長労働月：${worstMonthLabel || '概算'}（${worstMonthH}h）← この月基準で月給設定
+- 基本給（月額）：${baseSalary.toLocaleString()}円（最長労働月でも最低賃金割れなし）
 - 時給換算：${hourlyRate.toLocaleString()}円（最低賃金${mw}円${hourlyRate >= mw ? ' ✅クリア' : ' ❌未達'}）
 - 時間外割増単価：${Math.ceil(hourlyRate*1.25).toLocaleString()}円/h（×1.25）
 - 休日割増単価：${Math.ceil(hourlyRate*1.35).toLocaleString()}円/h（×1.35）
@@ -1462,30 +1572,30 @@ ${notes || '特になし'}
 
 ---
 
-以下の構成で実務的に回答してください。計算式と具体的な数字を必ず示してください。
+以下の構成で回答してください。各セクションは簡潔にまとめ、計算式と具体的な数字を示してください。
 
-## 1. 推奨月給額の設計
-${pref}の最低賃金${mw}円をベースに、最適な月給額と所定労働時間の組み合わせを提案してください。日給制からの換算が必要な場合は最低賃金割れのリスクも検証してください。
+## 1. 推奨月給額
+最低賃金${mw}円・月所定労働時間${monthlyWorkH}hをもとに、基本給・時給換算・割増賃金単価を示してください。
 
-## 2. 控除設計の適法チェックと推奨額
-家賃・光熱費・食費は最低賃金の比較計算対象外ですが労使協定が必要な生活費控除です。通信費等は最低賃金の比較対象になります。それぞれの適法性（現物給与評価額・実費按分・労使協定の要件）と、控除後の実質手取りがOTIT審査上問題ないか確認してください。
+## 2. 控除の適法チェック
+各控除項目の適法性と、控除後の実質手取りを確認してください。
 
 ## 3. 労働時間制度の提案
-業種・繁閑パターンを踏まえ、最適な制度（通常／1ヶ月変形／1年変形）を理由付きで提案してください。
+業種・繁閑を踏まえ、最適な制度（通常／1ヶ月変形／1年変形）を理由付きで提案してください。
 
 ## 4. 36協定の設計
-現状の残業実態に対して適切な協定時間数を提示し、特別条項の要否も判断してください。
+適切な協定時間数と特別条項の要否を判断してください。
 
 ## 5. 会社カレンダーの提案
-業種に適した年間休日数と休日の配置案を提示してください。
+業種に適した年間休日数と休日配置案を提示してください。
 
-## 6. 雇用条件書 主要記載項目（記載例）
-雇用条件書に記載すべき主要項目を表形式で推奨値とともに示してください。
+## 6. 雇用条件書 主要記載項目
+記載すべき主要項目を表形式で示してください。
 
-## 7. 監理団体からの確認・指導事項
-実施企業に対して監理団体として確認・指導すべきポイントをリスト化してください。
+## 7. 監理団体への確認・指導事項
+実施企業に対して確認・指導すべきポイントをリスト化してください。
 
-専門的かつ実務的に、計算例を交えて説明してください。`;
+簡潔かつ実務的に回答してください。`;
 
     try {
       const GAS_URL = 'https://script.google.com/macros/s/AKfycbx7LH9662jldNDDqZ-HROcREFGFQ-z2y7d3vohVtgdgGlH90Lqa2MaD3ENHpsonXgFm-g/exec';
